@@ -28,9 +28,7 @@ body{
     z-index:10;
 }
 
-h1{
-    color:#ff4081;
-}
+h1{ color:#ff4081; }
 
 button{
     padding:14px 25px;
@@ -50,19 +48,13 @@ button{
 }
 
 @keyframes muncul{
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
 }
 
 .balon{
     position:absolute;
-    bottom:-100px;
+    bottom:-120px;
     font-size:40px;
     animation:naik linear infinite;
 }
@@ -80,9 +72,7 @@ button{
 }
 
 @keyframes jatuh{
-    to{
-        transform:translateY(110vh);
-    }
+    to{transform:translateY(110vh);}
 }
 </style>
 </head>
@@ -95,39 +85,17 @@ button{
 
 <p>Ada pesan spesial buat kamu ✨</p>
 
-<button onclick="bukaUcapan()">
-💖 Klik Di Sini 💖
-</button>
+<button onclick="bukaUcapan()">💖 Klik Di Sini 💖</button>
 
 <div id="pesan">
 
 <h2>🥳 Selamat Ulang Tahun! 🥳</h2>
 
-<p>
-Semoga sehat selalu,
-bahagia selalu,
-dan semua wishlist yang kamu simpan
-satu per satu menjadi kenyataan. ✨
-</p>
-
-<p>
-Semoga tahun ini penuh keberuntungan,
-banyak senyum,
-banyak rezeki,
-dan sedikit drama. 🌷
-</p>
-
-<p>
-Tetap jadi pribadi yang baik,
-tetap semangat,
-dan jangan lupa menikmati setiap momen indah dalam hidupmu. 💖
-</p>
+<p>Semoga sehat selalu, bahagia selalu, dan semua wishlist kamu tercapai ✨</p>
+<p>Semoga tahun ini penuh keberuntungan 🌷</p>
+<p>Tetap semangat dan jadi lebih baik 💖</p>
 
 <h3>🎂 Happy Birthday 🎂</h3>
-
-<p>
-Semoga harimu menyenangkan dan penuh kebahagiaan ✨
-</p>
 
 </div>
 
@@ -135,7 +103,24 @@ Semoga harimu menyenangkan dan penuh kebahagiaan ✨
 
 <script>
 
+/* ================= AUDIO FIX ================= */
+let audioCtx;
+let sudahMain = false;
+
+function initAudio(){
+    if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended"){
+        audioCtx.resume();
+    }
+}
+
+/* ================= BUTTON ================= */
 function bukaUcapan(){
+
+if(sudahMain) return;
+sudahMain = true;
 
 document.getElementById("pesan").style.display="block";
 
@@ -143,60 +128,68 @@ buatConfetti();
 mainkanLagu();
 }
 
+/* ================= CONFETTI SAFE ================= */
+let confettiCount = 0;
+
 function buatConfetti(){
 
-for(let i=0;i<50;i++){
+if(confettiCount > 120) return;
+
+for(let i=0;i<40;i++){
 
 let c=document.createElement("div");
-
 c.className="confetti";
-
 c.innerHTML=["🎉","🎊","✨","💖","🎂"][Math.floor(Math.random()*5)];
 
 c.style.left=Math.random()*100+"vw";
-
+c.style.fontSize=(Math.random()*10+15)+"px";
 c.style.animationDuration=(Math.random()*3+2)+"s";
 
 document.body.appendChild(c);
 
+confettiCount++;
+
 setTimeout(()=>{
 c.remove();
+confettiCount--;
 },5000);
+
 }
 }
 
+/* ================= BALON ================= */
 for(let i=0;i<15;i++){
-
 let b=document.createElement("div");
-
 b.className="balon";
-
 b.innerHTML="🎈";
-
 b.style.left=Math.random()*100+"vw";
-
 b.style.animationDuration=(Math.random()*8+8)+"s";
-
 document.body.appendChild(b);
 }
 
-function mainkanNada(freq,duration,time){
+/* ================= AUDIO NOTE ================= */
+function playNote(freq,duration){
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+initAudio();
 
 const osc = audioCtx.createOscillator();
-
 const gain = audioCtx.createGain();
+
+osc.type="sine";
+osc.frequency.value=freq;
+
+gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
 
 osc.connect(gain);
 gain.connect(audioCtx.destination);
 
-osc.frequency.value=freq;
-osc.type="sine";
+osc.start();
+osc.stop(audioCtx.currentTime + duration/1000);
+}
 
-osc.start(audioCtx.currentTime+time);
-
-osc.stop(audioCtx.currentTime+time+duration);
+/* ================= LAGU (FULL + STABIL) ================= */
+function sleep(ms){
+return new Promise(r=>setTimeout(r,ms));
 }
 
 async function mainkanLagu(){
@@ -232,28 +225,7 @@ playNote(lagu[i][0], lagu[i][1]);
 await sleep(lagu[i][1]);
 }
 }
-function sleep(ms){
-return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-function playNote(freq, duration){
-
-initAudio();
-
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-
-osc.type = "sine";
-osc.frequency.value = freq;
-
-gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-
-osc.start();
-osc.stop(audioCtx.currentTime + duration/1000);
-}
 </script>
 
 </body>

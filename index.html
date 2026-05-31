@@ -232,7 +232,28 @@ playNote(lagu[i][0], lagu[i][1]);
 await sleep(lagu[i][1]);
 }
 }
+function sleep(ms){
+return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+function playNote(freq, duration){
+
+initAudio();
+
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+osc.type = "sine";
+osc.frequency.value = freq;
+
+gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+osc.stop(audioCtx.currentTime + duration/1000);
+}
 </script>
 
 </body>
